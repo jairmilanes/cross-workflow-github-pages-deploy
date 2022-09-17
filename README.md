@@ -1,6 +1,6 @@
-# About Github Pages Deployer
+# Cross-Workflow Github Pages Deploy
 
-Deploy previously created cross-workflow artifact to Github Pages.
+Deploy a previously created cross-workflow artifact to Github Pages.
 
 I've created this to overcome 2 main goals:
 - Allow for cross workflow artifact selection
