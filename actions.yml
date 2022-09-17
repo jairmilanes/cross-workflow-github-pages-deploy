@@ -1,0 +1,48 @@
+name: Cross-Workflow Github Pages Deploy
+description: Deploy previously created cross-workflow artifact to Github Pages
+author: jairmilanes
+branding:
+  icon: upload
+  color: orange
+inputs:
+  artifact_name:
+    description: The name artifact to search on previous workflows.
+    required: true
+  workflow_name:
+    description: Workflow name or workflow filename to filter artifacts by
+    required: false
+  branch:
+    description: Only consider artifacts from workflows on this branch name
+    required: false
+  token:
+    description: GitHub token to use, will fallback to the default github token
+    required: false
+    default: ${{ github.token }}
+  timeout:
+    description: Time in milliseconds after which to timeout and cancel the deployment [default is 10 minutes (60000)]
+    required: false
+    default: "600000"
+  reporting_interval:
+    description: Time in milliseconds between two deployment status report [default is 5 seconds (5000)]
+    required: false
+    default: "5000"
+  error_count:
+    description: Maximum number of status report errors before cancelling a deployment [default is 5]
+    required: false
+    default: "5"
+  on_error:
+    description: Choose how to exit the action if no artifact is found fail, warn or ignore
+    required: false
+    default: fail
+outputs:
+  status:
+    description: The deployment status
+  error_message:
+    description: The error message, if an error occurs
+  page_url:
+    description: The deployed Github page url
+  artifact:
+    description: JSON object of the deployed artifact
+runs:
+  using: node16
+  main: dist/index.js
