@@ -9,8 +9,9 @@
     "format": "prettier --write .",
     "test": "jest --coverage --collectCoverageFrom=./src/**",
     "test:watch": "jest --watchAll",
-    "build": "tsc -p ./tsconfig.action.json",
-    "compile": "ncc build build/index.js --license licenses.txt -o ./dist "
+    "tsc": "tsc -p ./tsconfig.action.json",
+    "ncc": "ncc build build/index.js --license licenses.txt -o ./dist",
+    "build": "npm run tsc && npm run ncc"
   },
   "keywords": [
     "github",

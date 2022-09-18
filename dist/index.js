@@ -396,9 +396,8 @@ const createDeployment = (artifact, idToken) => __awaiter(void 0, void 0, void 0
         if (!artifact || !artifact.url) {
             throw new Error(error_messages_1.messages.noArtifactUrl);
         }
-        const artifactUrl = `${artifact.url}&%24expand=SignedContent`;
         const payload = {
-            artifact_url: artifactUrl,
+            artifact_url: artifact.url,
             pages_build_version: (0, input_1.getBuildVersion)(),
             oidc_token: idToken,
         };
