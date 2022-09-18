@@ -64,10 +64,8 @@ export const createDeployment = async (
             throw new Error(messages.noArtifactUrl);
         }
 
-        const artifactUrl = `${artifact.url}&%24expand=SignedContent`;
-
         const payload = {
-            artifact_url: artifactUrl,
+            artifact_url: artifact.url,
             pages_build_version: getBuildVersion(),
             oidc_token: idToken,
         };
