@@ -393,11 +393,11 @@ const createDeployment = (artifact, idToken) => __awaiter(void 0, void 0, void 0
     try {
         (0, core_1.info)(`Actor: ${(0, input_1.getBuildActor)()}`);
         (0, core_1.info)(`Action ID: ${(0, input_1.getActionsId)()}`);
-        if (!artifact || !artifact.url) {
+        if (!artifact || !artifact.archive_download_url) {
             throw new Error(error_messages_1.messages.noArtifactUrl);
         }
         const payload = {
-            artifact_url: artifact.url,
+            artifact_url: artifact.archive_download_url,
             pages_build_version: (0, input_1.getBuildVersion)(),
             oidc_token: idToken,
         };

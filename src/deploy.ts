@@ -60,12 +60,12 @@ export const createDeployment = async (
         info(`Actor: ${getBuildActor()}`);
         info(`Action ID: ${getActionsId()}`);
 
-        if (!artifact || !artifact.url) {
+        if (!artifact || !artifact.archive_download_url) {
             throw new Error(messages.noArtifactUrl);
         }
 
         const payload = {
-            artifact_url: artifact.url,
+            artifact_url: artifact.archive_download_url,
             pages_build_version: getBuildVersion(),
             oidc_token: idToken,
         };
