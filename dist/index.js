@@ -133,6 +133,8 @@ const getUnsignedDownloadUrl = (artifact) => __awaiter(void 0, void 0, void 0, f
     var _a, _b;
     if (!artifact.workflow_run)
         return undefined;
+    const workflowArtifactsUrl = (0, input_1.getArtifactUrl)(artifact.workflow_run.id);
+    (0, core_1.info)(`===> Requesting workflow artifacts to swap download URL from: ${workflowArtifactsUrl}`);
     const { data } = yield axios_1.default.get((0, input_1.getArtifactUrl)(artifact.workflow_run.id), {
         headers: {
             Authorization: `Bearer ${(0, input_1.getRuntimeToken)()}`,
@@ -578,7 +580,7 @@ const getDeployStatusUrl = () => `${(0, exports.getGithubApiUrl)()}/repos/${(0, 
 exports.getDeployStatusUrl = getDeployStatusUrl;
 const getDeployCancelUrl = () => `${(0, exports.getGithubApiUrl)()}/repos/${(0, exports.getRepoName)()}/pages/deployment/cancel/${(0, exports.getBuildVersion)()}`;
 exports.getDeployCancelUrl = getDeployCancelUrl;
-const getArtifactUrl = (workflowRunId) => `${(0, exports.getRuntimeUrl)()}}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
+const getArtifactUrl = (workflowRunId) => `${(0, exports.getRuntimeUrl)()}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
 exports.getArtifactUrl = getArtifactUrl;
 const getErrorTreatment = () => (0, core_1.getInput)("on_error");
 exports.getErrorTreatment = getErrorTreatment;

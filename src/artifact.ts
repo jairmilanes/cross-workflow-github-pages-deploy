@@ -35,6 +35,11 @@ export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
 
 const getUnsignedDownloadUrl = async (artifact: Artifact): Promise<string|undefined> => {
     if (!artifact.workflow_run) return undefined;
+
+    const workflowArtifactsUrl = getArtifactUrl(artifact.workflow_run.id as number)
+
+    info(`===> Requesting workflow artifacts to swap download URL from: ${workflowArtifactsUrl}`)
+
     const { data } = await axios.get(
         getArtifactUrl(artifact.workflow_run.id as number),
         {

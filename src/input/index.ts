@@ -56,7 +56,7 @@ export const getDeployCancelUrl = (): string =>
     `${getGithubApiUrl()}/repos/${getRepoName()}/pages/deployment/cancel/${getBuildVersion()}`;
 
 export const getArtifactUrl = (workflowRunId: number): string =>
-    `${getRuntimeUrl()}}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
+    `${getRuntimeUrl()}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
 
 export const getErrorTreatment = (): ErrorTreatment =>
     getInput("on_error") as ErrorTreatment;
