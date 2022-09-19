@@ -29,9 +29,9 @@ const main = async (): Promise<void> => {
             throw new Error(messages.tokenNotWritable);
         }
 
-        const artifact = await artifacts.findTargetArtifact();
+        const artifactRawUrl = await artifacts.findTargetArtifact();
 
-        if (!artifact) {
+        if (!artifactRawUrl) {
             setOutput("artifact", false);
 
             throw new Error(
@@ -42,7 +42,7 @@ const main = async (): Promise<void> => {
             );
         }
 
-        const deployment = await createDeployment(artifact, idToken);
+        const deployment = await createDeployment(artifactRawUrl, idToken);
 
         if (deployment) {
             setOutput("page_url", deployment.page_url);

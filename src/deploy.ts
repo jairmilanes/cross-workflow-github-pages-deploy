@@ -53,19 +53,15 @@ export const throwCustomErrorMessage = (
 };
 
 export const createDeployment = async (
-    artifact: Artifact,
+    artifactRawUrl: string,
     idToken: string
 ): Promise<Deployment | undefined> => {
     try {
         info(`Actor: ${getBuildActor()}`);
         info(`Action ID: ${getActionsId()}`);
 
-        if (!artifact || !artifact.archive_download_url) {
-            throw new Error(messages.noArtifactUrl);
-        }
-
         const payload = {
-            artifact_url: artifact.archive_download_url,
+            artifact_url: artifactRawUrl,
             pages_build_version: getBuildVersion(),
             oidc_token: idToken,
         };

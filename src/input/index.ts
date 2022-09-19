@@ -36,6 +36,9 @@ export const getBuildVersion = (): string => process.env.GITHUB_SHA as string;
 export const getRuntimeUrl = (): string =>
     process.env.ACTIONS_RUNTIME_URL as string;
 
+export const getRuntimeToken = (): string =>
+    process.env.ACTIONS_RUNTIME_TOKEN as string;
+
 export const getBuildActor = (): string => process.env.GITHUB_ACTOR as string;
 
 export const getActionsId = (): string => process.env.GITHUB_ACTION as string;
@@ -51,6 +54,9 @@ export const getDeployStatusUrl = (): string =>
 
 export const getDeployCancelUrl = (): string =>
     `${getGithubApiUrl()}/repos/${getRepoName()}/pages/deployment/cancel/${getBuildVersion()}`;
+
+export const getArtifactUrl = (workflowRunId: number): string =>
+    `${getRuntimeUrl()}}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
 
 export const getErrorTreatment = (): ErrorTreatment =>
     getInput("on_error") as ErrorTreatment;

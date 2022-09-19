@@ -4,11 +4,13 @@ import { Artifact } from "./types";
 import { fetchArtifacts, fetchWorkflowRuns, findWorkflowId } from "./api";
 import {
     getArtifactName,
-    getRepoName,
+    getArtifactUrl,
+    getRepoName, getRuntimeToken,
     getTargetBranch,
-    getWorkflowName,
+    getWorkflowName
 } from "./input";
 import { messages } from "./utils/error-messages";
+import axios from "axios";
 
 export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
     const branch = getTargetBranch();
@@ -31,7 +33,22 @@ export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
     });
 };
 
-export const findTargetArtifact = async (): Promise<Artifact | void> => {
+const getUnsignedDownloadUrl = async (artifact: Artifact): Promise<string|undefined> => {
+    if (!artifact.workflow_run) return undefined;
+    const { data } = await axios.get(
+        getArtifactUrl(artifact.workflow_run.id as number),
+        {
+            headers: {
+                Authorization: `Bearer ${getRuntimeToken()}`,
+                'Content-Type': 'application/json'
+            }
+        }
+    )
+
+    return data?.value?.find((art: Artifact) => art.name === artifact.name)?.url
+}
+
+export const findTargetArtifact = async (): Promise<string | void> => {
     const [owner, repo] = (getRepoName() as string).split("/");
     const branch = getTargetBranch();
     const workflowName = getWorkflowName();
@@ -77,8 +94,14 @@ export const findTargetArtifact = async (): Promise<Artifact | void> => {
     if (artifact) {
         const size = filesize(artifact.size_in_bytes, { base: 10 });
 
+        const artifactRawUrl = await getUnsignedDownloadUrl(artifact);
+
+        if (!artifactRawUrl) {
+            throw new Error(messages.noArtifactUrl);
+        }
+
         info(`==> Artifact found: ${artifact.name}.zip (${size})`);
 
-        return artifact;
+        return `${artifactRawUrl}?%24expand=SignedContent`
     }
 };
