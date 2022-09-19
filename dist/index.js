@@ -111,6 +111,7 @@ const filesize_1 = __importDefault(__nccwpck_require__(4035));
 const api_1 = __nccwpck_require__(9899);
 const input_1 = __nccwpck_require__(6252);
 const error_messages_1 = __nccwpck_require__(8228);
+const axios_1 = __importDefault(__nccwpck_require__(5042));
 const findArtifact = (artifacts, workflowIds) => {
     const branch = (0, input_1.getTargetBranch)();
     const workflowName = (0, input_1.getWorkflowName)();
@@ -128,6 +129,18 @@ const findArtifact = (artifacts, workflowIds) => {
     });
 };
 exports.findArtifact = findArtifact;
+const getUnsignedDownloadUrl = (artifact) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    if (!artifact.workflow_run)
+        return undefined;
+    const { data } = yield axios_1.default.get((0, input_1.getArtifactUrl)(artifact.workflow_run.id), {
+        headers: {
+            Authorization: `Bearer ${(0, input_1.getRuntimeToken)()}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    return (_b = (_a = data === null || data === void 0 ? void 0 : data.value) === null || _a === void 0 ? void 0 : _a.find((art) => art.name === artifact.name)) === null || _b === void 0 ? void 0 : _b.url;
+});
 const findTargetArtifact = () => __awaiter(void 0, void 0, void 0, function* () {
     const [owner, repo] = (0, input_1.getRepoName)().split("/");
     const branch = (0, input_1.getTargetBranch)();
@@ -160,8 +173,12 @@ const findTargetArtifact = () => __awaiter(void 0, void 0, void 0, function* () 
     const artifact = (0, exports.findArtifact)(artifacts, workflowsRuns);
     if (artifact) {
         const size = (0, filesize_1.default)(artifact.size_in_bytes, { base: 10 });
+        const artifactRawUrl = yield getUnsignedDownloadUrl(artifact);
+        if (!artifactRawUrl) {
+            throw new Error(error_messages_1.messages.noArtifactUrl);
+        }
         (0, core_1.info)(`==> Artifact found: ${artifact.name}.zip (${size})`);
-        return artifact;
+        return `${artifactRawUrl}?%24expand=SignedContent`;
     }
 });
 exports.findTargetArtifact = findTargetArtifact;
@@ -389,16 +406,12 @@ const throwCustomErrorMessage = (error) => {
     }
 };
 exports.throwCustomErrorMessage = throwCustomErrorMessage;
-const createDeployment = (artifact, idToken) => __awaiter(void 0, void 0, void 0, function* () {
+const createDeployment = (artifactRawUrl, idToken) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         (0, core_1.info)(`Actor: ${(0, input_1.getBuildActor)()}`);
         (0, core_1.info)(`Action ID: ${(0, input_1.getActionsId)()}`);
-        if (!artifact || !artifact.url) {
-            throw new Error(error_messages_1.messages.noArtifactUrl);
-        }
-        const artifactUrl = `${artifact.url}?%24expand=SignedContent`;
         const payload = {
-            artifact_url: artifactUrl,
+            artifact_url: artifactRawUrl,
             pages_build_version: (0, input_1.getBuildVersion)(),
             oidc_token: idToken,
         };
@@ -485,12 +498,12 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         if (!idToken) {
             throw new Error(error_messages_1.messages.tokenNotWritable);
         }
-        const artifact = yield artifacts.findTargetArtifact();
-        if (!artifact) {
+        const artifactRawUrl = yield artifacts.findTargetArtifact();
+        if (!artifactRawUrl) {
             (0, core_1.setOutput)("artifact", false);
             throw new Error(error_messages_1.messages.artifactNotFound.replace("%s", (0, input_1.getArtifactName)()));
         }
-        const deployment = yield (0, deploy_1.createDeployment)(artifact, idToken);
+        const deployment = yield (0, deploy_1.createDeployment)(artifactRawUrl, idToken);
         if (deployment) {
             (0, core_1.setOutput)("page_url", deployment.page_url);
             yield (0, check_1.checkDeploymentStatus)(deployment);
@@ -519,7 +532,7 @@ exports["default"] = main();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getMissingVars = exports.getErrorTreatment = exports.getDeployCancelUrl = exports.getDeployStatusUrl = exports.getDeploymentUrl = exports.getGithubApiUrl = exports.getActionsId = exports.getBuildActor = exports.getRuntimeUrl = exports.getBuildVersion = exports.getErrorCount = exports.getReportingInterval = exports.getTimeout = exports.getToken = exports.getWorkflowName = exports.getRepoName = exports.getArtifactName = exports.getTargetEvent = exports.getTargetBranch = void 0;
+exports.getMissingVars = exports.getErrorTreatment = exports.getArtifactUrl = exports.getDeployCancelUrl = exports.getDeployStatusUrl = exports.getDeploymentUrl = exports.getGithubApiUrl = exports.getActionsId = exports.getBuildActor = exports.getRuntimeToken = exports.getRuntimeUrl = exports.getBuildVersion = exports.getErrorCount = exports.getReportingInterval = exports.getTimeout = exports.getToken = exports.getWorkflowName = exports.getRepoName = exports.getArtifactName = exports.getTargetEvent = exports.getTargetBranch = void 0;
 const core_1 = __nccwpck_require__(9844);
 const getTargetBranch = () => {
     const branch = (0, core_1.getInput)("branch");
@@ -551,6 +564,8 @@ const getBuildVersion = () => process.env.GITHUB_SHA;
 exports.getBuildVersion = getBuildVersion;
 const getRuntimeUrl = () => process.env.ACTIONS_RUNTIME_URL;
 exports.getRuntimeUrl = getRuntimeUrl;
+const getRuntimeToken = () => process.env.ACTIONS_RUNTIME_TOKEN;
+exports.getRuntimeToken = getRuntimeToken;
 const getBuildActor = () => process.env.GITHUB_ACTOR;
 exports.getBuildActor = getBuildActor;
 const getActionsId = () => process.env.GITHUB_ACTION;
@@ -563,6 +578,8 @@ const getDeployStatusUrl = () => `${(0, exports.getGithubApiUrl)()}/repos/${(0, 
 exports.getDeployStatusUrl = getDeployStatusUrl;
 const getDeployCancelUrl = () => `${(0, exports.getGithubApiUrl)()}/repos/${(0, exports.getRepoName)()}/pages/deployment/cancel/${(0, exports.getBuildVersion)()}`;
 exports.getDeployCancelUrl = getDeployCancelUrl;
+const getArtifactUrl = (workflowRunId) => `${(0, exports.getRuntimeUrl)()}}_apis/pipelines/workflows/${workflowRunId}/artifacts?api-version=6.0-preview`;
+exports.getArtifactUrl = getArtifactUrl;
 const getErrorTreatment = () => (0, core_1.getInput)("on_error");
 exports.getErrorTreatment = getErrorTreatment;
 const getMissingVars = () => {
