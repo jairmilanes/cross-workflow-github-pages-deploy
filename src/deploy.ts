@@ -59,6 +59,7 @@ export const createDeployment = async (
     try {
         info(`Actor: ${getBuildActor()}`);
         info(`Action ID: ${getActionsId()}`);
+        info(`ID Token: ${idToken.substring(0, 20)}...`);
 
         const payload = {
             artifact_url: artifactRawUrl,

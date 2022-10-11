@@ -36,6 +36,9 @@ export const getBuildVersion = (): string => process.env.GITHUB_SHA as string;
 export const getRuntimeUrl = (): string =>
     process.env.ACTIONS_RUNTIME_URL as string;
 
+export const getRuntimeId = (): number =>
+    process.env.GITHUB_RUN_ID as unknown as number;
+
 export const getRuntimeToken = (): string =>
     process.env.ACTIONS_RUNTIME_TOKEN as string;
 

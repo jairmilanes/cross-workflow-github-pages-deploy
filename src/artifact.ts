@@ -5,12 +5,13 @@ import { fetchArtifacts, fetchWorkflowRuns, findWorkflowId } from "./api";
 import {
     getArtifactName,
     getArtifactUrl,
-    getRepoName,
+    getRepoName, getRuntimeId, getRuntimeToken,
     getTargetBranch, getToken,
     getWorkflowName
 } from "./input";
 import { messages } from "./utils/error-messages";
 import axios from "axios";
+import { pullArtifact } from "./pull-artifact";
 
 export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
     const branch = getTargetBranch();
@@ -36,21 +37,23 @@ export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
 const getUnsignedDownloadUrl = async (artifact: Artifact): Promise<string|undefined> => {
     if (!artifact.workflow_run) return undefined;
 
-    const workflowArtifactsUrl = getArtifactUrl(artifact.workflow_run.id as number)
+    const workflowArtifactsUrl = getArtifactUrl(getRuntimeId())
 
     info(`===> Requesting workflow artifacts to swap download URL from: ${workflowArtifactsUrl} using Github Token`)
 
     const { data } = await axios.get(
-        getArtifactUrl(artifact.workflow_run.id as number),
+        workflowArtifactsUrl,
         {
             headers: {
-                Authorization: `Bearer ${getToken()}`,
+                Authorization: `Bearer ${getRuntimeToken()}`,
                 'Content-Type': 'application/json'
             }
         }
     )
 
-    return data?.value?.find((art: Artifact) => art.name === artifact.name)?.url
+    const { url } = data?.value?.find((art: Artifact) => art.name === artifact.name)
+
+    return `${url}?%24expand=SignedContent`
 }
 
 export const findTargetArtifact = async (): Promise<string | void> => {
@@ -99,6 +102,8 @@ export const findTargetArtifact = async (): Promise<string | void> => {
     if (artifact) {
         const size = filesize(artifact.size_in_bytes, { base: 10 });
 
+        await pullArtifact(artifact);
+
         const artifactRawUrl = await getUnsignedDownloadUrl(artifact);
 
         if (!artifactRawUrl) {
@@ -107,6 +112,6 @@ export const findTargetArtifact = async (): Promise<string | void> => {
 
         info(`==> Artifact found: ${artifact.name}.zip (${size})`);
 
-        return `${artifactRawUrl}?%24expand=SignedContent`
+        return artifactRawUrl
     }
 };
