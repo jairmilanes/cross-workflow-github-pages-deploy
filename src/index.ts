@@ -62,7 +62,7 @@ const main = async (): Promise<void> => {
 
         error(JSON.stringify(err));
 
-        setExitMessage(getErrorTreatment(), err.message);
+        setExitMessage(getErrorTreatment(), err?.message);
     }
 };
 
