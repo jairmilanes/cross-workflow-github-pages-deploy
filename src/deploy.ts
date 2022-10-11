@@ -1,6 +1,6 @@
 import { info } from "@actions/core";
 import axios, { AxiosError } from "axios";
-import { Artifact, Deployment, ResponseData } from "./types";
+import { Deployment, ResponseData } from "./types";
 import {
     getActionsId,
     getBuildActor,

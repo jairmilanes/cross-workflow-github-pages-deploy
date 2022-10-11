@@ -5,8 +5,8 @@ import { fetchArtifacts, fetchWorkflowRuns, findWorkflowId } from "./api";
 import {
     getArtifactName,
     getArtifactUrl,
-    getRepoName, getRuntimeToken,
-    getTargetBranch,
+    getRepoName,
+    getTargetBranch, getToken,
     getWorkflowName
 } from "./input";
 import { messages } from "./utils/error-messages";
@@ -44,7 +44,7 @@ const getUnsignedDownloadUrl = async (artifact: Artifact): Promise<string|undefi
         getArtifactUrl(artifact.workflow_run.id as number),
         {
             headers: {
-                Authorization: `Bearer ${getRuntimeToken()}`,
+                Authorization: `Bearer ${getToken()}`,
                 'Content-Type': 'application/json'
             }
         }

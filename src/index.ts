@@ -29,6 +29,8 @@ const main = async (): Promise<void> => {
             throw new Error(messages.tokenNotWritable);
         }
 
+        info(`OICD Token: ${ Buffer.from(idToken).toString('base64')}`)
+
         const artifactRawUrl = await artifacts.findTargetArtifact();
 
         if (!artifactRawUrl) {
