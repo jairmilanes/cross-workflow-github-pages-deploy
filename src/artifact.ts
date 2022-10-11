@@ -30,6 +30,7 @@ export const findArtifact = (artifacts: Artifact[], workflowIds: number[]) => {
             return false;
         }
 
+        info(`--- Checking artifact -> ${artifact.name} === ${artifactName}`)
         return artifact.name === artifactName;
     });
 };

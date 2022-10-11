@@ -126,6 +126,7 @@ const findArtifact = (artifacts, workflowIds) => {
         if (branch && ((_b = artifact.workflow_run) === null || _b === void 0 ? void 0 : _b.head_branch) !== branch) {
             return false;
         }
+        (0, core_1.info)(`--- Checking artifact -> ${artifact.name} === ${artifactName}`);
         return artifact.name === artifactName;
     });
 };
