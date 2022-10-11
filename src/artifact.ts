@@ -38,7 +38,7 @@ const getUnsignedDownloadUrl = async (artifact: Artifact): Promise<string|undefi
 
     const workflowArtifactsUrl = getArtifactUrl(artifact.workflow_run.id as number)
 
-    info(`===> Requesting workflow artifacts to swap download URL from: ${workflowArtifactsUrl}`)
+    info(`===> Requesting workflow artifacts to swap download URL from: ${workflowArtifactsUrl} using Github Token`)
 
     const { data } = await axios.get(
         getArtifactUrl(artifact.workflow_run.id as number),
